@@ -1,0 +1,7 @@
+haproxy:
+    image: offlineregistry.dataman-inc.com:5000/library/haproxy:1.5.18-alpine 
+    volumes:
+      - ./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - /var/run/haproxy:/run/haproxy
+    restart: always
+    net: host
