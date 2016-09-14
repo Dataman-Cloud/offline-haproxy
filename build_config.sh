@@ -1,6 +1,11 @@
 #!/bin/bash
-set -eu
-. ../config.cfg
+set -exu
+
+if [ -f "../config.cfg" ];then
+	. ../config.cfg
+else 
+	. ./config.cfg
+fi
 
 FABIO_LIST=$(echo $SRY_MASTER_LIST |sed "s/,/ /g")
 FABIO_SERVERS=""
@@ -9,11 +14,12 @@ for fobio in $FABIO_LIST;do
     FABIO_SERVERS+="        server sry-fabio-$fobio:9999 $fobio:9999 check inter 5000  maxconn 10\n"
 done
 
+MYSQL_SERVERS="        server sry-mysqlmaster-3306 $SRY_MYSQL_MASTER_HOST:3306 check inter 5000 on-marked-up shutdown-backup-sessions\n        server sry-mysqlslave-3306 $SRY_MYSQL_SLAVE_HOST:3306 check inter 5000 backup\n"
+
 replace_var(){
     files=$@
-    echo $files | xargs sed -i 's#--MYSQL_MASTER_HOST--#'$SRY_MYSQL_MASTER_HOST'#g'
-    echo $files | xargs sed -i 's#--MYSQL_SLAVE_HOST--#'$SRY_MYSQL_SLAVE_HOST'#g'
     echo $files | xargs sed -i 's/--FABIO_SERVERS--/'"$FABIO_SERVERS"'/g'
+    echo $files | xargs sed -i 's/--MYSQL_SERVERS--/'"$MYSQL_SERVERS"'/g'
 }
 
 pre_conf(){
